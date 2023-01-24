@@ -4,7 +4,6 @@ const express = require('express');
 const cors = require('cors');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
-const { notFoundController } = require('./errors/notFoundController');
 
 
 const { PORT = 3000 } = process.env;
@@ -28,7 +27,9 @@ app.use((req, res, next) => {
 app.use('/', userRouter);
 app.use('/', cardRouter);
 
-app.use('*', notFoundController);
+app.use('*', (req, res) => {
+  res.status(404).send({message: 'Запрашиваемый ресурс не найден'});
+});
 
 
 
