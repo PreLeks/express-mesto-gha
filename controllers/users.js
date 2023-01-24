@@ -27,7 +27,7 @@ module.exports.createUser = (req, res) => {
   Users.create(data)
     .then(user => res.send({data: user}))
     .catch((err) => {
-      if(err.name === 'ErrorValidation') {
+      if(err.name === 'ValidationError') {
         res.status(400).send({message: 'Переданы некорректные данные'});
       } else {
         res.status(500).send({message: 'Неизвестная ошибка сервера'});
@@ -48,7 +48,7 @@ module.exports.updateUser = (req, res) => {
   ).orFail(new ErrorNotFound())
   .then(user => res.send(user))
   .catch((err) => {
-    if(err.name === 'ErrorValidation') {
+    if(err.name === 'ValidationError') {
       res.status(400).send({message: 'Переданы некорректные данные'});
     } else if (err.name === 'CastError') {
       res.status(404).send({message: 'Пользователь с указанным id не найден'});
@@ -71,7 +71,7 @@ module.exports.updateAvatarUser = (req, res) => {
   ).orFail(new ErrorNotFound())
   .then(user => res.send(user))
   .catch((err) => {
-    if(err.name === 'ErrorValidation') {
+    if(err.name === 'ValidationError') {
       res.status(400).send({message: 'Переданы некорректные данные'});
     } else if (err.name === 'CastError') {
       res.status(404).send({message: 'Пользователь с указанным id не найден'});
