@@ -1,72 +1,88 @@
 const Cards = require('../models/card');
-const {ErrorNotFound} = require('../errors/Errors');
+const { ErrorNotFound } = require('../errors/Errors');
+const {
+  CODE_INCORRECT_DATA,
+  CODE_MSG_INCORRECT_DATA,
+  CODE_NOT_FOUND,
+  CODE_MSG_NOT_FOUND_CARD,
+  CODE_ERROR_SERVER,
+  CODE_MSG_ERROR_SERVER,
+} = require('../utils/constants');
 
-module.exports.getCards = (req, res) => {
+const getCards = (req, res) => {
   Cards.find({})
-    .then(cards => res.send(cards))
-    .catch(() => res.status(500).send({message: 'Неизвестная ошибка сервера'}));
+    .then((cards) => res.send(cards))
+    .catch(() => res.status(CODE_ERROR_SERVER).send({ message: CODE_MSG_ERROR_SERVER }));
 };
 
-module.exports.createCard = (req, res) => {
-  const {name, link} = req.body;
+const createCard = (req, res) => {
+  const { name, link } = req.body;
   const owner = req.user._id;
-  Cards.create({name, link, owner})
-    .then(cards => res.send(cards))
+  Cards.create({ name, link, owner })
+    .then((cards) => res.send(cards))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({message: 'Переданы некорректные данные'});
+        res.status(CODE_INCORRECT_DATA).send({ message: CODE_MSG_INCORRECT_DATA });
       } else {
-        res.status(500).send({message: 'Неизвестная ошибка сервера'});
+        res.status(CODE_ERROR_SERVER).send({ message: CODE_MSG_ERROR_SERVER });
       }
     });
 };
 
-module.exports.deleteCard = (req, res) => {
+const deleteCard = (req, res) => {
   Cards.findByIdAndRemove(req.params.cardId).orFail(new ErrorNotFound())
-    .then(cards => res.send(cards))
+    .then((cards) => res.send(cards))
     .catch((err) => {
-      if(err.name === 'NotFound') {
-        res.status(404).send({message: 'Карточка с указанным _id не найдена.'});
+      if (err.name === 'NotFound') {
+        res.status(CODE_NOT_FOUND).send({ message: CODE_MSG_NOT_FOUND_CARD });
       } else if (err.name === 'CastError') {
-        res.status(400).send({message: 'Переданы некорректные данные'});
+        res.status(CODE_INCORRECT_DATA).send({ message: CODE_MSG_INCORRECT_DATA });
       } else {
-        res.status(500).send({message: 'Неизвестная ошибка сервера'});
+        res.status(CODE_ERROR_SERVER).send({ message: CODE_MSG_ERROR_SERVER });
       }
     });
 };
 
-module.exports.likeCard  = (req, res) => {
+const likeCard = (req, res) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-    ).orFail(new ErrorNotFound())
-    .then(cards => res.send(cards))
+  ).orFail(new ErrorNotFound())
+    .then((cards) => res.send(cards))
     .catch((err) => {
-      if(err.name === 'NotFound') {
-        res.status(404).send({message: 'Карточка с указанным _id не найдена.'});
+      if (err.name === 'NotFound') {
+        res.status(CODE_NOT_FOUND).send({ message: CODE_MSG_NOT_FOUND_CARD });
       } else if (err.name === 'CastError') {
-        res.status(400).send({message: 'Переданы некорректные данные'});
+        res.status(CODE_INCORRECT_DATA).send({ message: CODE_MSG_INCORRECT_DATA });
       } else {
-        res.status(500).send({message: 'Неизвестная ошибка сервера'});
+        res.status(CODE_ERROR_SERVER).send({ message: CODE_MSG_ERROR_SERVER });
       }
     });
 };
 
-module.exports.dislikeCard  = (req, res) => {
+const dislikeCard = (req, res) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
-    ).orFail(new ErrorNotFound())
-    .then(cards => res.send(cards))
+  ).orFail(new ErrorNotFound())
+    .then((cards) => res.send(cards))
     .catch((err) => {
-      if(err.name === 'NotFound') {
-        res.status(404).send({message: 'Карточка с указанным _id не найдена.'});
+      if (err.name === 'NotFound') {
+        res.status(CODE_NOT_FOUND).send({ message: CODE_MSG_NOT_FOUND_CARD });
       } else if (err.name === 'CastError') {
-        res.status(400).send({message: 'Переданы некорректные данные'});
+        res.status(CODE_INCORRECT_DATA).send({ message: CODE_MSG_INCORRECT_DATA });
       } else {
-        res.status(500).send({message: 'Неизвестная ошибка сервера'});
+        res.status(CODE_ERROR_SERVER).send({ message: CODE_MSG_ERROR_SERVER });
       }
     });
+};
+
+module.exports = {
+  getCards,
+  createCard,
+  deleteCard,
+  likeCard,
+  dislikeCard,
 };
