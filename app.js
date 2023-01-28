@@ -4,7 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
-const { notFoundResource } = require('./utils/notFoundResource');
+const { CODE_NOT_FOUND, CODE_MSG_NOT_FOUND_RESOURCE } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -25,6 +25,8 @@ app.use((req, res, next) => {
 
 app.use('/', userRouter);
 app.use('/', cardRouter);
-app.use('*', notFoundResource);
+app.use('*', (req, res) => {
+  res.status(CODE_NOT_FOUND).send({ message: CODE_MSG_NOT_FOUND_RESOURCE });
+});
 
 app.listen(PORT);
