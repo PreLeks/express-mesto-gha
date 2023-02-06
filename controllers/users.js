@@ -1,48 +1,87 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const Users = require('../models/user');
-const { ErrorNotFound } = require('../errors/Errors');
+const NotFoundError = require('../errors/NotFoundError');
+const IncorrectData = require('../errors/IncorrectData');
+const ExistEmailError = require('../errors/ExistEmailError');
 const {
-  CODE_INCORRECT_DATA,
-  CODE_MSG_INCORRECT_DATA,
-  CODE_NOT_FOUND,
-  CODE_MSG_NOT_FOUND_USER,
-  CODE_ERROR_SERVER,
-  CODE_MSG_ERROR_SERVER,
+  INCORRECT_DATA_MESSAGE,
+  NOT_FOUND_USER_ID_MESSAGE,
+  EXIST_EMAIL_MESSAGE,
 } = require('../utils/constants');
 
-const getUsers = (req, res) => {
-  Users.find({})
-    .then((user) => res.send(user))
-    .catch(() => res.status(CODE_ERROR_SERVER).send({ message: CODE_MSG_ERROR_SERVER }));
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+  Users.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'jwt-token', { expiresIn: '7d' });
+      res.cookie('jwt', token, {
+        maxAge: 3600000,
+        httpOnly: true,
+      });
+      res.send({ token });
+    })
+    .catch(next);
 };
 
-const getUserById = (req, res) => {
-  Users.findById(req.params.id).orFail(new ErrorNotFound())
+module.exports.getUsers = (req, res, next) => {
+  Users.find({})
+    .then((user) => res.send(user))
+    .catch(next);
+};
+
+module.exports.getUserById = (req, res, next) => {
+  Users.findById(req.params.id).orFail(new NotFoundError(NOT_FOUND_USER_ID_MESSAGE))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'NotFound') {
-        res.status(CODE_NOT_FOUND).send({ message: CODE_MSG_NOT_FOUND_USER });
+        next(err);
       } else if (err.name === 'CastError') {
-        res.status(CODE_INCORRECT_DATA).send({ message: CODE_MSG_INCORRECT_DATA });
+        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
       } else {
-        res.status(CODE_ERROR_SERVER).send({ message: CODE_MSG_ERROR_SERVER });
+        next(err);
       }
     });
 };
 
-const createUser = (req, res) => {
-  const data = req.body;
-  Users.create(data)
-    .then((user) => res.send({ data: user }))
+module.exports.getUserMe = (req, res, next) => {
+  const userId = req.user._id;
+  Users.findById(userId).orFail(new NotFoundError(NOT_FOUND_USER_ID_MESSAGE))
+    .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(CODE_INCORRECT_DATA).send({ message: CODE_MSG_INCORRECT_DATA });
+      if (err.name === 'NotFound') {
+        next(err);
+      } else if (err.name === 'CastError') {
+        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
       } else {
-        res.status(CODE_ERROR_SERVER).send({ message: CODE_MSG_ERROR_SERVER });
+        next(err);
       }
     });
 };
 
-const updateUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => Users.create({
+      name, about, avatar, email, password: hash,
+    }))
+    .then((user) => res.status(201).send({
+      name, about, avatar, email, _id: user._id,
+    }))
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new ExistEmailError(EXIST_EMAIL_MESSAGE));
+      } else if (err.name === 'ValidationError') {
+        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
+      } else {
+        next(err);
+      }
+    });
+};
+
+module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   Users.findByIdAndUpdate(
     req.user._id,
@@ -52,20 +91,20 @@ const updateUser = (req, res) => {
       runValidators: true,
       upsert: false,
     },
-  ).orFail(new ErrorNotFound())
+  ).orFail(new NotFoundError(NOT_FOUND_USER_ID_MESSAGE))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'NotFound') {
-        res.status(CODE_NOT_FOUND).send({ message: CODE_MSG_NOT_FOUND_USER });
-      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
-        res.status(CODE_INCORRECT_DATA).send({ message: CODE_MSG_INCORRECT_DATA });
+      if (err.name === 'ValidationError') {
+        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
+      } else if (err.name === 'CastError') {
+        next(new IncorrectData(NOT_FOUND_USER_ID_MESSAGE));
       } else {
-        res.status(CODE_ERROR_SERVER).send({ message: CODE_MSG_ERROR_SERVER });
+        next(err);
       }
     });
 };
 
-const updateAvatarUser = (req, res) => {
+module.exports.updateAvatarUser = (req, res, next) => {
   const { avatar } = req.body;
 
   Users.findByIdAndUpdate(
@@ -75,23 +114,15 @@ const updateAvatarUser = (req, res) => {
       new: true,
       runValidators: true,
     },
-  ).orFail(new ErrorNotFound())
+  ).orFail(new NotFoundError(NOT_FOUND_USER_ID_MESSAGE))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'NotFound') {
-        res.status(CODE_NOT_FOUND).send({ message: CODE_MSG_NOT_FOUND_USER });
-      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
-        res.status(CODE_INCORRECT_DATA).send({ message: CODE_MSG_INCORRECT_DATA });
+      if (err.name === 'ValidationError') {
+        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
+      } else if (err.name === 'CastError') {
+        next(new IncorrectData(NOT_FOUND_USER_ID_MESSAGE));
       } else {
-        res.status(CODE_ERROR_SERVER).send({ message: CODE_MSG_ERROR_SERVER });
+        next(err);
       }
     });
-};
-
-module.exports = {
-  getUsers,
-  getUserById,
-  createUser,
-  updateUser,
-  updateAvatarUser,
 };

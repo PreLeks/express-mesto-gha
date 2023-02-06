@@ -1,21 +1,23 @@
-const CODE_INCORRECT_DATA = 400;
-const CODE_MSG_INCORRECT_DATA = 'Переданы некорректные данные';
-
-const CODE_NOT_FOUND = 404;
-const CODE_MSG_NOT_FOUND_RESOURCE = 'Запрашиваемый ресурс не найден';
-const CODE_MSG_NOT_FOUND_CARD = 'Карточка с указанным id не найдена';
-const CODE_MSG_NOT_FOUND_USER = 'Пользователь с указанным id не найден';
-
-const CODE_ERROR_SERVER = 500;
-const CODE_MSG_ERROR_SERVER = 'Неизвестная ошибка сервера';
+const SERVER_ERROR_CODE = 500;
+const SERVER_ERROR_MESSAGE = 'Неизвестная ошибка сервера';
+const NOT_FOUND_ROUTE_MESSAGE = 'Запрашиваемый адрес запроса не найден';
+const NOT_FOUND_USER_ID_MESSAGE = 'Пользователь с указанным id не найден.';
+const NOT_FOUND_CARD_ID_MESSAGE = 'Карточка с указанным id не найдена.';
+const NOT_RIGHTS_MESSAGE = 'У вас нет прав на удаление';
+const INCORRECT_DATA_MESSAGE = 'Переданы не корректные данные';
+const LOGIN_ERROR_MESSAGE = 'Неверное имя пользователя или пароль';
+const NOT_REGISTERED_MESSAGE = 'Необходима авторизация.';
+const EXIST_EMAIL_MESSAGE = 'Пользователь с таким Email уже существует.';
 
 module.exports = {
-  CODE_INCORRECT_DATA,
-  CODE_MSG_INCORRECT_DATA,
-  CODE_NOT_FOUND,
-  CODE_MSG_NOT_FOUND_RESOURCE,
-  CODE_MSG_NOT_FOUND_CARD,
-  CODE_MSG_NOT_FOUND_USER,
-  CODE_ERROR_SERVER,
-  CODE_MSG_ERROR_SERVER,
+  SERVER_ERROR_CODE,
+  SERVER_ERROR_MESSAGE,
+  NOT_FOUND_ROUTE_MESSAGE,
+  INCORRECT_DATA_MESSAGE,
+  LOGIN_ERROR_MESSAGE,
+  NOT_FOUND_USER_ID_MESSAGE,
+  NOT_FOUND_CARD_ID_MESSAGE,
+  NOT_RIGHTS_MESSAGE,
+  NOT_REGISTERED_MESSAGE,
+  EXIST_EMAIL_MESSAGE,
 };

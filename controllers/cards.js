@@ -1,88 +1,86 @@
 const Cards = require('../models/card');
-const { ErrorNotFound } = require('../errors/Errors');
+const IncorrectData = require('../errors/IncorrectData');
 const {
-  CODE_INCORRECT_DATA,
-  CODE_MSG_INCORRECT_DATA,
-  CODE_NOT_FOUND,
-  CODE_MSG_NOT_FOUND_CARD,
-  CODE_ERROR_SERVER,
-  CODE_MSG_ERROR_SERVER,
+  INCORRECT_DATA_MESSAGE,
+  NOT_FOUND_CARD_ID_MESSAGE,
+  NOT_RIGHTS_MESSAGE,
 } = require('../utils/constants');
+const NotRightError = require('../errors/NotRightError');
+const NotFoundError = require('../errors/NotFoundError');
 
-const getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Cards.find({})
     .then((cards) => res.send(cards))
-    .catch(() => res.status(CODE_ERROR_SERVER).send({ message: CODE_MSG_ERROR_SERVER }));
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Cards.create({ name, link, owner })
     .then((cards) => res.send(cards))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(CODE_INCORRECT_DATA).send({ message: CODE_MSG_INCORRECT_DATA });
+        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
       } else {
-        res.status(CODE_ERROR_SERVER).send({ message: CODE_MSG_ERROR_SERVER });
+        next(err);
       }
     });
 };
 
-const deleteCard = (req, res) => {
-  Cards.findByIdAndRemove(req.params.cardId).orFail(new ErrorNotFound())
-    .then((cards) => res.send(cards))
+module.exports.deleteCard = (req, res, next) => {
+  Cards.findById(req.params.cardId).orFail(new NotFoundError(NOT_FOUND_CARD_ID_MESSAGE))
+    .then((card) => {
+      const user = String(req.user._id);
+      const cardOwner = String(card.owner);
+      if (user === cardOwner) {
+        Cards.findByIdAndRemove(req.params.cardId)
+          .then((deletedCard) => res.send(deletedCard));
+      } else {
+        next(new NotRightError(NOT_RIGHTS_MESSAGE));
+      }
+    })
     .catch((err) => {
-      if (err.name === 'NotFound') {
-        res.status(CODE_NOT_FOUND).send({ message: CODE_MSG_NOT_FOUND_CARD });
-      } else if (err.name === 'CastError') {
-        res.status(CODE_INCORRECT_DATA).send({ message: CODE_MSG_INCORRECT_DATA });
+      if (err.name === 'CastError') {
+        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
       } else {
-        res.status(CODE_ERROR_SERVER).send({ message: CODE_MSG_ERROR_SERVER });
+        next(err);
       }
     });
 };
 
-const likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  ).orFail(new ErrorNotFound())
+  ).orFail(new NotFoundError(NOT_FOUND_CARD_ID_MESSAGE))
     .then((cards) => res.send(cards))
     .catch((err) => {
       if (err.name === 'NotFound') {
-        res.status(CODE_NOT_FOUND).send({ message: CODE_MSG_NOT_FOUND_CARD });
+        next(err);
       } else if (err.name === 'CastError') {
-        res.status(CODE_INCORRECT_DATA).send({ message: CODE_MSG_INCORRECT_DATA });
+        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
       } else {
-        res.status(CODE_ERROR_SERVER).send({ message: CODE_MSG_ERROR_SERVER });
+        next(err);
       }
     });
 };
 
-const dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  ).orFail(new ErrorNotFound())
+  ).orFail(new NotFoundError(NOT_FOUND_CARD_ID_MESSAGE))
     .then((cards) => res.send(cards))
     .catch((err) => {
       if (err.name === 'NotFound') {
-        res.status(CODE_NOT_FOUND).send({ message: CODE_MSG_NOT_FOUND_CARD });
+        next(err);
       } else if (err.name === 'CastError') {
-        res.status(CODE_INCORRECT_DATA).send({ message: CODE_MSG_INCORRECT_DATA });
+        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
       } else {
-        res.status(CODE_ERROR_SERVER).send({ message: CODE_MSG_ERROR_SERVER });
+        next(err);
       }
     });
-};
-
-module.exports = {
-  getCards,
-  createCard,
-  deleteCard,
-  likeCard,
-  dislikeCard,
 };
