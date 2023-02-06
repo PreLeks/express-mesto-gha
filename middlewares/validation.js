@@ -4,7 +4,7 @@ const IncorrectData = require('../errors/IncorrectData');
 
 const validationURL = (value) => {
   if (!validator.isURL((value), { require_protocol: true })) {
-    throw new IncorrectData('Невалидный URL-адресс');
+    throw new IncorrectData('Невалидный URL-адрес');
   } else {
     return value;
   }

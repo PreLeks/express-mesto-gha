@@ -1,23 +1,26 @@
-const SERVER_ERROR_CODE = 500;
-const SERVER_ERROR_MESSAGE = 'Неизвестная ошибка сервера';
-const NOT_FOUND_ROUTE_MESSAGE = 'Запрашиваемый адрес запроса не найден';
-const NOT_FOUND_USER_ID_MESSAGE = 'Пользователь с указанным id не найден.';
-const NOT_FOUND_CARD_ID_MESSAGE = 'Карточка с указанным id не найдена.';
-const NOT_RIGHTS_MESSAGE = 'У вас нет прав на удаление';
-const INCORRECT_DATA_MESSAGE = 'Переданы не корректные данные';
-const LOGIN_ERROR_MESSAGE = 'Неверное имя пользователя или пароль';
-const NOT_REGISTERED_MESSAGE = 'Необходима авторизация.';
-const EXIST_EMAIL_MESSAGE = 'Пользователь с таким Email уже существует.';
+const INTERNAL_SERVER_ERROR = 500;
+const MSG_SERVER_ERROR = 'Внутренняя ошибка сервера';
+
+const MSG_NOT_FOUND_RESOURCE = 'Запрашиваемый ресурс не найден';
+const MSG_NOT_FOUND_USER = 'Указанный пользователь не найден';
+const MSG_NOT_FOUND_CARD = 'Указанная карточка не найдена';
+
+const MSG_INCORRECT_DATA = 'Переданы некорректные данные';
+
+const MSG_UNAUTHORIZED = 'Необходимо авторизироваться';
+const MSG_INCORRECT_LOGIN_OR_PASSWORD = 'Неверное имя пользователя или пароль';
+const MSG_EMAIL_REGISTERED = 'Указанный Email уже зарегистрирован';
+const MSG_NOT_DELETE_SELECTED_CARD = 'У Вас нет возможности удалить выбранную карточку';
 
 module.exports = {
-  SERVER_ERROR_CODE,
-  SERVER_ERROR_MESSAGE,
-  NOT_FOUND_ROUTE_MESSAGE,
-  INCORRECT_DATA_MESSAGE,
-  LOGIN_ERROR_MESSAGE,
-  NOT_FOUND_USER_ID_MESSAGE,
-  NOT_FOUND_CARD_ID_MESSAGE,
-  NOT_RIGHTS_MESSAGE,
-  NOT_REGISTERED_MESSAGE,
-  EXIST_EMAIL_MESSAGE,
+  INTERNAL_SERVER_ERROR,
+  MSG_SERVER_ERROR,
+  MSG_NOT_FOUND_RESOURCE,
+  MSG_NOT_FOUND_USER,
+  MSG_NOT_FOUND_CARD,
+  MSG_INCORRECT_DATA,
+  MSG_UNAUTHORIZED,
+  MSG_INCORRECT_LOGIN_OR_PASSWORD,
+  MSG_EMAIL_REGISTERED,
+  MSG_NOT_DELETE_SELECTED_CARD,
 };

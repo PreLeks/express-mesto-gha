@@ -1,12 +1,12 @@
 const Cards = require('../models/card');
 const IncorrectData = require('../errors/IncorrectData');
 const {
-  INCORRECT_DATA_MESSAGE,
-  NOT_FOUND_CARD_ID_MESSAGE,
-  NOT_RIGHTS_MESSAGE,
+  MSG_INCORRECT_DATA,
+  MSG_NOT_FOUND_CARD,
+  MSG_NOT_DELETE_SELECTED_CARD,
 } = require('../utils/constants');
-const NotRightError = require('../errors/NotRightError');
-const NotFoundError = require('../errors/NotFoundError');
+const NotPossibilityDelErr = require('../errors/NotPossibilityDelErr');
+const NotFoundErr = require('../errors/NotFoundErr');
 
 module.exports.getCards = (req, res, next) => {
   Cards.find({})
@@ -21,7 +21,7 @@ module.exports.createCard = (req, res, next) => {
     .then((cards) => res.send(cards))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
+        next(new IncorrectData(MSG_INCORRECT_DATA));
       } else {
         next(err);
       }
@@ -29,7 +29,7 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  Cards.findById(req.params.cardId).orFail(new NotFoundError(NOT_FOUND_CARD_ID_MESSAGE))
+  Cards.findById(req.params.cardId).orFail(new NotFoundErr(MSG_NOT_FOUND_CARD))
     .then((card) => {
       const user = String(req.user._id);
       const cardOwner = String(card.owner);
@@ -37,12 +37,12 @@ module.exports.deleteCard = (req, res, next) => {
         Cards.findByIdAndRemove(req.params.cardId)
           .then((deletedCard) => res.send(deletedCard));
       } else {
-        next(new NotRightError(NOT_RIGHTS_MESSAGE));
+        next(new NotPossibilityDelErr(MSG_NOT_DELETE_SELECTED_CARD));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
+        next(new IncorrectData(MSG_INCORRECT_DATA));
       } else {
         next(err);
       }
@@ -54,13 +54,13 @@ module.exports.likeCard = (req, res, next) => {
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  ).orFail(new NotFoundError(NOT_FOUND_CARD_ID_MESSAGE))
+  ).orFail(new NotFoundErr(MSG_NOT_FOUND_CARD))
     .then((cards) => res.send(cards))
     .catch((err) => {
       if (err.name === 'NotFound') {
         next(err);
       } else if (err.name === 'CastError') {
-        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
+        next(new IncorrectData(MSG_INCORRECT_DATA));
       } else {
         next(err);
       }
@@ -72,13 +72,13 @@ module.exports.dislikeCard = (req, res, next) => {
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  ).orFail(new NotFoundError(NOT_FOUND_CARD_ID_MESSAGE))
+  ).orFail(new NotFoundErr(MSG_NOT_FOUND_CARD))
     .then((cards) => res.send(cards))
     .catch((err) => {
       if (err.name === 'NotFound') {
         next(err);
       } else if (err.name === 'CastError') {
-        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
+        next(new IncorrectData(MSG_INCORRECT_DATA));
       } else {
         next(err);
       }

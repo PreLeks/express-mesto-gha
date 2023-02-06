@@ -1,8 +1,8 @@
-const { NOT_FOUND_ROUTE_MESSAGE } = require('../utils/constants');
-const NotFoundError = require('../errors/NotFoundError');
+const { MSG_NOT_FOUND_RESOURCE } = require('../utils/constants');
+const NotFoundErr = require('../errors/NotFoundErr');
 
 const notFoundController = (req, res, next) => {
-  next(new NotFoundError(NOT_FOUND_ROUTE_MESSAGE));
+  next(new NotFoundErr(MSG_NOT_FOUND_RESOURCE));
 };
 
 module.exports = notFoundController;

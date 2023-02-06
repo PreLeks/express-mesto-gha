@@ -1,13 +1,13 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Users = require('../models/user');
-const NotFoundError = require('../errors/NotFoundError');
+const NotFoundErr = require('../errors/NotFoundErr');
 const IncorrectData = require('../errors/IncorrectData');
-const ExistEmailError = require('../errors/ExistEmailError');
+const AlreadyRegEmailErr = require('../errors/AlreadyRegEmailErr');
 const {
-  INCORRECT_DATA_MESSAGE,
-  NOT_FOUND_USER_ID_MESSAGE,
-  EXIST_EMAIL_MESSAGE,
+  MSG_INCORRECT_DATA,
+  MSG_NOT_FOUND_USER,
+  MSG_EMAIL_REGISTERED,
 } = require('../utils/constants');
 
 module.exports.login = (req, res, next) => {
@@ -31,13 +31,13 @@ module.exports.getUsers = (req, res, next) => {
 };
 
 module.exports.getUserById = (req, res, next) => {
-  Users.findById(req.params.id).orFail(new NotFoundError(NOT_FOUND_USER_ID_MESSAGE))
+  Users.findById(req.params.id).orFail(new NotFoundErr(MSG_NOT_FOUND_USER))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'NotFound') {
         next(err);
       } else if (err.name === 'CastError') {
-        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
+        next(new IncorrectData(MSG_INCORRECT_DATA));
       } else {
         next(err);
       }
@@ -46,13 +46,13 @@ module.exports.getUserById = (req, res, next) => {
 
 module.exports.getUserMe = (req, res, next) => {
   const userId = req.user._id;
-  Users.findById(userId).orFail(new NotFoundError(NOT_FOUND_USER_ID_MESSAGE))
+  Users.findById(userId).orFail(new NotFoundErr(MSG_NOT_FOUND_USER))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'NotFound') {
         next(err);
       } else if (err.name === 'CastError') {
-        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
+        next(new IncorrectData(MSG_INCORRECT_DATA));
       } else {
         next(err);
       }
@@ -72,9 +72,9 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.code === 11000) {
-        next(new ExistEmailError(EXIST_EMAIL_MESSAGE));
+        next(new AlreadyRegEmailErr(MSG_EMAIL_REGISTERED));
       } else if (err.name === 'ValidationError') {
-        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
+        next(new IncorrectData(MSG_INCORRECT_DATA));
       } else {
         next(err);
       }
@@ -91,13 +91,13 @@ module.exports.updateUser = (req, res, next) => {
       runValidators: true,
       upsert: false,
     },
-  ).orFail(new NotFoundError(NOT_FOUND_USER_ID_MESSAGE))
+  ).orFail(new NotFoundErr(MSG_NOT_FOUND_USER))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
+        next(new IncorrectData(MSG_INCORRECT_DATA));
       } else if (err.name === 'CastError') {
-        next(new IncorrectData(NOT_FOUND_USER_ID_MESSAGE));
+        next(new IncorrectData(MSG_NOT_FOUND_USER));
       } else {
         next(err);
       }
@@ -114,13 +114,13 @@ module.exports.updateAvatarUser = (req, res, next) => {
       new: true,
       runValidators: true,
     },
-  ).orFail(new NotFoundError(NOT_FOUND_USER_ID_MESSAGE))
+  ).orFail(new NotFoundErr(MSG_NOT_FOUND_USER))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new IncorrectData(INCORRECT_DATA_MESSAGE));
+        next(new IncorrectData(MSG_INCORRECT_DATA));
       } else if (err.name === 'CastError') {
-        next(new IncorrectData(NOT_FOUND_USER_ID_MESSAGE));
+        next(new IncorrectData(MSG_NOT_FOUND_USER));
       } else {
         next(err);
       }
