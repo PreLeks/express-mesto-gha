@@ -10,7 +10,7 @@ const {
   MSG_EMAIL_REGISTERED,
 } = require('../utils/constants');
 
-module.exports.login = (req, res, next) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   Users.findUserByCredentials(email, password)
     .then((user) => {
@@ -24,13 +24,13 @@ module.exports.login = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.getUsers = (req, res, next) => {
+const getUsers = (req, res, next) => {
   Users.find({})
     .then((user) => res.send(user))
     .catch(next);
 };
 
-module.exports.getUserById = (req, res, next) => {
+const getUserById = (req, res, next) => {
   Users.findById(req.params.id).orFail(new NotFoundErr(MSG_NOT_FOUND_USER))
     .then((user) => res.send(user))
     .catch((err) => {
@@ -44,7 +44,7 @@ module.exports.getUserById = (req, res, next) => {
     });
 };
 
-module.exports.getUserMe = (req, res, next) => {
+const getUserMe = (req, res, next) => {
   const userId = req.user._id;
   Users.findById(userId).orFail(new NotFoundErr(MSG_NOT_FOUND_USER))
     .then((user) => res.send(user))
@@ -59,7 +59,7 @@ module.exports.getUserMe = (req, res, next) => {
     });
 };
 
-module.exports.createUser = (req, res, next) => {
+const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -81,7 +81,7 @@ module.exports.createUser = (req, res, next) => {
     });
 };
 
-module.exports.updateUser = (req, res, next) => {
+const updateUser = (req, res, next) => {
   const { name, about } = req.body;
   Users.findByIdAndUpdate(
     req.user._id,
@@ -104,7 +104,7 @@ module.exports.updateUser = (req, res, next) => {
     });
 };
 
-module.exports.updateAvatarUser = (req, res, next) => {
+const updateAvatarUser = (req, res, next) => {
   const { avatar } = req.body;
 
   Users.findByIdAndUpdate(
@@ -125,4 +125,14 @@ module.exports.updateAvatarUser = (req, res, next) => {
         next(err);
       }
     });
+};
+
+module.exports = {
+  login,
+  getUsers,
+  getUserById,
+  getUserMe,
+  createUser,
+  updateUser,
+  updateAvatarUser,
 };

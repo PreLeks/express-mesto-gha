@@ -8,13 +8,13 @@ const {
 const NotPossibilityDelErr = require('../errors/NotPossibilityDelErr');
 const NotFoundErr = require('../errors/NotFoundErr');
 
-module.exports.getCards = (req, res, next) => {
+const getCards = (req, res, next) => {
   Cards.find({})
     .then((cards) => res.send(cards))
     .catch(next);
 };
 
-module.exports.createCard = (req, res, next) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Cards.create({ name, link, owner })
@@ -28,7 +28,43 @@ module.exports.createCard = (req, res, next) => {
     });
 };
 
-module.exports.deleteCard = (req, res, next) => {
+const likeCard = (req, res, next) => {
+  Cards.findByIdAndUpdate(
+    req.params.cardId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true },
+  ).orFail(new NotFoundErr(MSG_NOT_FOUND_CARD))
+    .then((cards) => res.send(cards))
+    .catch((err) => {
+      if (err.name === 'NotFound') {
+        next(err);
+      } else if (err.name === 'CastError') {
+        next(new IncorrectData(MSG_INCORRECT_DATA));
+      } else {
+        next(err);
+      }
+    });
+};
+
+const dislikeCard = (req, res, next) => {
+  Cards.findByIdAndUpdate(
+    req.params.cardId,
+    { $pull: { likes: req.user._id } },
+    { new: true },
+  ).orFail(new NotFoundErr(MSG_NOT_FOUND_CARD))
+    .then((cards) => res.send(cards))
+    .catch((err) => {
+      if (err.name === 'NotFound') {
+        next(err);
+      } else if (err.name === 'CastError') {
+        next(new IncorrectData(MSG_INCORRECT_DATA));
+      } else {
+        next(err);
+      }
+    });
+};
+
+const deleteCard = (req, res, next) => {
   Cards.findById(req.params.cardId).orFail(new NotFoundErr(MSG_NOT_FOUND_CARD))
     .then((card) => {
       const user = String(req.user._id);
@@ -49,38 +85,10 @@ module.exports.deleteCard = (req, res, next) => {
     });
 };
 
-module.exports.likeCard = (req, res, next) => {
-  Cards.findByIdAndUpdate(
-    req.params.cardId,
-    { $addToSet: { likes: req.user._id } },
-    { new: true },
-  ).orFail(new NotFoundErr(MSG_NOT_FOUND_CARD))
-    .then((cards) => res.send(cards))
-    .catch((err) => {
-      if (err.name === 'NotFound') {
-        next(err);
-      } else if (err.name === 'CastError') {
-        next(new IncorrectData(MSG_INCORRECT_DATA));
-      } else {
-        next(err);
-      }
-    });
-};
-
-module.exports.dislikeCard = (req, res, next) => {
-  Cards.findByIdAndUpdate(
-    req.params.cardId,
-    { $pull: { likes: req.user._id } },
-    { new: true },
-  ).orFail(new NotFoundErr(MSG_NOT_FOUND_CARD))
-    .then((cards) => res.send(cards))
-    .catch((err) => {
-      if (err.name === 'NotFound') {
-        next(err);
-      } else if (err.name === 'CastError') {
-        next(new IncorrectData(MSG_INCORRECT_DATA));
-      } else {
-        next(err);
-      }
-    });
+module.exports = {
+  getCards,
+  createCard,
+  likeCard,
+  dislikeCard,
+  deleteCard,
 };
