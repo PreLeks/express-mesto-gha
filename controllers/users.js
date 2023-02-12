@@ -34,9 +34,7 @@ const getUserById = (req, res, next) => {
   Users.findById(req.params.id).orFail(new NotFoundErr(MSG_NOT_FOUND_USER))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'NotFound') {
-        next(err);
-      } else if (err.name === 'CastError') {
+      if (err.name === 'CastError') {
         next(new IncorrectData(MSG_INCORRECT_DATA));
       } else {
         next(err);
@@ -49,9 +47,7 @@ const getUserMe = (req, res, next) => {
   Users.findById(userId).orFail(new NotFoundErr(MSG_NOT_FOUND_USER))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'NotFound') {
-        next(err);
-      } else if (err.name === 'CastError') {
+      if (err.name === 'CastError') {
         next(new IncorrectData(MSG_INCORRECT_DATA));
       } else {
         next(err);
@@ -103,7 +99,6 @@ const updateUser = (req, res, next) => {
 
 const updateAvatarUser = (req, res, next) => {
   const { avatar } = req.body;
-
   Users.findByIdAndUpdate(
     req.user._id,
     { avatar },
