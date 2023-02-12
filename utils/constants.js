@@ -12,6 +12,8 @@ const MSG_INCORRECT_LOGIN_OR_PASSWORD = 'Неверное имя пользов�
 const MSG_EMAIL_REGISTERED = 'Указанный Email уже зарегистрирован';
 const MSG_NOT_DELETE_SELECTED_CARD = 'У Вас нет возможности удалить выбранную карточку';
 
+const validationLink = (item) => /^((http|https):\/\/)(www\.)?([a-zA-Z0-9-]+.)+[\w-]+(\/[\w- ./?%&=#])?$/.test(item);
+
 module.exports = {
   INTERNAL_SERVER_ERROR,
   MSG_SERVER_ERROR,
@@ -23,4 +25,5 @@ module.exports = {
   MSG_INCORRECT_LOGIN_OR_PASSWORD,
   MSG_EMAIL_REGISTERED,
   MSG_NOT_DELETE_SELECTED_CARD,
+  validationLink,
 };

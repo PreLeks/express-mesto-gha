@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const AuthErr = require('../errors/AuthErr');
-const { MSG_INCORRECT_LOGIN_OR_PASSWORD } = require('../utils/constants');
-const { validationLink } = require('../middlewares/validation');
+const { MSG_INCORRECT_LOGIN_OR_PASSWORD, validationLink } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema({
   name: {

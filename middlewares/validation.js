@@ -59,8 +59,6 @@ const searchCardIdValidation = celebrate({
   }),
 });
 
-const validationLink = (item) => /^((http|https):\/\/)(www\.)?([a-zA-Z0-9-]+.)+[\w-]+(\/[\w- ./?%&=#])?$/.test(item);
-
 module.exports = {
   getUserByIdValidation,
   updateUserValidation,
@@ -69,5 +67,4 @@ module.exports = {
   createUserValidation,
   createCardValidation,
   searchCardIdValidation,
-  validationLink,
 };
