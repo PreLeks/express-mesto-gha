@@ -36,9 +36,7 @@ const likeCard = (req, res, next) => {
   ).orFail(new NotFoundErr(MSG_NOT_FOUND_CARD))
     .then((cards) => res.send(cards))
     .catch((err) => {
-      if (err.name === 'NotFound') {
-        next(err);
-      } else if (err.name === 'CastError') {
+      if (err.name === 'CastError') {
         next(new IncorrectData(MSG_INCORRECT_DATA));
       } else {
         next(err);
@@ -54,9 +52,7 @@ const dislikeCard = (req, res, next) => {
   ).orFail(new NotFoundErr(MSG_NOT_FOUND_CARD))
     .then((cards) => res.send(cards))
     .catch((err) => {
-      if (err.name === 'NotFound') {
-        next(err);
-      } else if (err.name === 'CastError') {
+      if (err.name === 'CastError') {
         next(new IncorrectData(MSG_INCORRECT_DATA));
       } else {
         next(err);
@@ -71,7 +67,8 @@ const deleteCard = (req, res, next) => {
       const cardOwner = String(card.owner);
       if (user === cardOwner) {
         Cards.findByIdAndRemove(req.params.cardId)
-          .then((deletedCard) => res.send(deletedCard));
+          .then((deletedCard) => res.send(deletedCard))
+          .catch(next);
       } else {
         next(new NotPossibilityDelErr(MSG_NOT_DELETE_SELECTED_CARD));
       }

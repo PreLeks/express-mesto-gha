@@ -12,9 +12,6 @@ const validationURL = (value) => {
 
 const loginUserValidation = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string(),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
@@ -38,14 +35,14 @@ const getUserByIdValidation = celebrate({
 
 const updateUserValidation = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
+    name: Joi.string().min(2).max(30).required(),
+    about: Joi.string().min(2).max(30).required(),
   }),
 });
 
 const updateAvatarUserValidation = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().custom(validationURL),
+    avatar: Joi.string().required().custom(validationURL),
   }),
 });
 

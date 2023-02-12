@@ -96,11 +96,8 @@ const updateUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new IncorrectData(MSG_INCORRECT_DATA));
-      } else if (err.name === 'CastError') {
-        next(new IncorrectData(MSG_NOT_FOUND_USER));
-      } else {
-        next(err);
       }
+      return next(err);
     });
 };
 
@@ -119,11 +116,8 @@ const updateAvatarUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new IncorrectData(MSG_INCORRECT_DATA));
-      } else if (err.name === 'CastError') {
-        next(new IncorrectData(MSG_NOT_FOUND_USER));
-      } else {
-        next(err);
       }
+      return next(err);
     });
 };
 

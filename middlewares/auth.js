@@ -8,8 +8,8 @@ module.exports = (req, res, next) => {
   try {
     payload = jwt.verify(token, 'jwt-token');
   } catch (err) {
-    next(new AuthErr(MSG_UNAUTHORIZED));
+    throw new AuthErr(MSG_UNAUTHORIZED);
   }
   req.user = payload;
-  return next();
+  next();
 };
